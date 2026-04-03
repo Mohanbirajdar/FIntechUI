@@ -29,6 +29,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isAdminAuthenticated, adminLogout, initialize } = useAdminStore();
   const { theme, toggleTheme, setTheme } = useAppStore();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -36,6 +37,19 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     initialize();
     if (!isAdminAuthenticated) router.replace("/admin/login");
   }, [isAdminAuthenticated, router, theme, setTheme, initialize]);
+
+  // Handle mobile responsiveness
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile && sidebarOpen) setSidebarOpen(false);
+    };
+    
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   if (!isAdminAuthenticated) return null;
 
@@ -45,16 +59,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       <Toaster position="top-right" toastOptions={{
         style: { background: "var(--card)", border: "1px solid var(--border)", color: "var(--foreground)" }
       }} />
 
       {/* Sidebar */}
       <motion.aside
-        animate={{ width: sidebarOpen ? 240 : 64 }}
+        animate={{ width: isMobile ? 0 : sidebarOpen ? 240 : 64 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="relative flex-shrink-0 border-r border-border flex flex-col h-screen sticky top-0 z-40 overflow-hidden"
+        className="relative flex-shrink-0 border-r border-border flex flex-col h-screen sticky top-0 z-40 overflow-hidden md:flex hidden"
         style={{ background: "var(--card)" }}
       >
         {/* Logo */}
@@ -151,9 +165,115 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       </motion.aside>
 
       {/* Main content */}
-      <div className="flex-1 min-w-0 overflow-hidden">
-        {/* Top bar */}
-        <div className="sticky top-0 z-30 flex items-center gap-4 px-6 py-3 border-b border-border"
+      <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
+        {/* Mobile header */}
+        <div className="sticky top-0 z-30 flex items-center gap-4 px-4 py-3 border-b border-border md:hidden"
+          style={{ background: "var(--card)", backdropFilter: "blur(12px)" }}>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          <h2 className="text-sm font-semibold text-foreground flex-1">
+            {navItems.find((n) => n.href === pathname)?.label || "Admin"}
+          </h2>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+            style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)" }}>
+            A
+          </div>
+        </div>
+
+        {/* Mobile sidebar overlay */}
+        <AnimatePresence>
+          {isMobile && sidebarOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSidebarOpen(false)}
+                className="fixed inset-0 bg-black/50 z-30 md:hidden"
+              />
+              <motion.nav
+                initial={{ x: -240 }}
+                animate={{ x: 0 }}
+                exit={{ x: -240 }}
+                transition={{ duration: 0.3 }}
+                className="fixed left-0 top-0 w-60 h-screen flex flex-col z-40 border-r border-border overflow-y-auto no-scrollbar"
+                style={{ background: "var(--card)" }}
+              >
+                <div className="p-4 flex items-center gap-3 border-b border-border">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
+                    style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)" }}>
+                    <Shield size={18} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-foreground text-sm leading-none">FinTrack</p>
+                    <p className="text-[10px] text-amber-400 font-semibold leading-none mt-0.5">ADMIN</p>
+                  </div>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="ml-auto text-muted-foreground hover:text-foreground"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <nav className="flex-1 p-2 space-y-0.5">
+                  {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <motion.button
+                        key={item.href}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => {
+                          router.push(item.href);
+                          setSidebarOpen(false);
+                        }}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-left",
+                          isActive
+                            ? "text-white shadow-lg"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                        )}
+                        style={isActive ? { background: "linear-gradient(135deg,#f59e0b,#d97706)" } : {}}
+                      >
+                        <item.icon size={17} className="shrink-0" />
+                        <span className="text-sm font-medium flex-1">{item.label}</span>
+                        {item.badge && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500 text-white">
+                            {item.badge}
+                          </span>
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </nav>
+
+                <div className="p-2 border-t border-border space-y-1">
+                  <button
+                    onClick={toggleTheme}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+                  >
+                    {theme === "dark" ? <Sun size={17} className="shrink-0" /> : <Moon size={17} className="shrink-0" />}
+                    <span className="text-sm font-medium">{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition-all"
+                  >
+                    <LogOut size={17} className="shrink-0" />
+                    <span className="text-sm font-medium">Logout</span>
+                  </button>
+                </div>
+              </motion.nav>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Desktop header */}
+        <div className="sticky top-0 z-30 flex items-center gap-4 px-6 py-3 border-b border-border hidden md:flex"
           style={{ background: "var(--card)", backdropFilter: "blur(12px)" }}>
           <div className="flex-1">
             <h2 className="text-sm font-semibold text-foreground">
@@ -177,7 +297,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="p-6 max-w-screen-2xl"
+          className="flex-1 overflow-y-auto p-4 md:p-6"
         >
           {children}
         </motion.main>

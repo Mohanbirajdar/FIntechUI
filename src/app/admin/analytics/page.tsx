@@ -57,28 +57,28 @@ export default function AnalyticsPage() {
         </motion.div>
 
         {/* KPIs */}
-        <motion.div variants={fadeUp} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
             { label: "Avg Spend/User", value: formatCurrency(avgSpend), icon: TrendingUp, color: "#8b5cf6" },
             { label: "Avg Transactions", value: avgTxns, icon: Activity, color: "#10b981" },
             { label: "DAU (today)", value: dauMauData[dauMauData.length - 1].dau, icon: Users, color: "#f59e0b" },
             { label: "Retention D30", value: `${retentionData[retentionData.length - 1].d30}%`, icon: Award, color: "#3b82f6" },
           ].map((kpi) => (
-            <div key={kpi.label} className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+            <div key={kpi.label} className="rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{kpi.label}</span>
                 <kpi.icon size={16} style={{ color: kpi.color }} />
               </div>
-              <div className="text-2xl font-bold text-foreground">{kpi.value}</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{kpi.value}</div>
             </div>
           ))}
         </motion.div>
 
         {/* DAU/MAU + Retention */}
-        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+          <div className="rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">DAU / MAU Ratio</h3>
-            <div className="h-52">
+            <div className="h-40 sm:h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={dauMauData}>
                   <defs>
@@ -92,9 +92,9 @@ export default function AnalyticsPage() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={30} />
-                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 11 }} />
+                  <XAxis dataKey="month" tick={{ fontSize: 9, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 9, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={25} />
+                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 10 }} />
                   <Area type="monotone" dataKey="mau" stroke="#10b981" strokeWidth={2} fill="url(#gMAU)" name="MAU" />
                   <Area type="monotone" dataKey="dau" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#gDAU)" name="DAU" />
                 </AreaChart>
@@ -102,15 +102,15 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+          <div className="rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Retention Rates (%)</h3>
-            <div className="h-52">
+            <div className="h-40 sm:h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={retentionData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={30} domain={[0, 100]} />
-                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 11 }} />
+                  <XAxis dataKey="month" tick={{ fontSize: 9, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 9, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} width={25} domain={[0, 100]} />
+                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 10 }} />
                   <Line type="monotone" dataKey="d1" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} name="Day 1" />
                   <Line type="monotone" dataKey="d7" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} name="Day 7" />
                   <Line type="monotone" dataKey="d30" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} name="Day 30" />
@@ -121,56 +121,52 @@ export default function AnalyticsPage() {
         </motion.div>
 
         {/* Top users + Personality pie */}
-        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="lg:col-span-2 rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Top Users by Activity</h3>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {topUsers.map((user, i) => (
-                <div key={user.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-accent/30 transition-colors">
-                  <div className="text-sm font-bold text-muted-foreground w-5 text-center">#{i + 1}</div>
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0"
+                <div key={user.id} className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 rounded-xl hover:bg-accent/30 transition-colors">
+                  <div className="text-xs font-bold text-muted-foreground w-4 text-center shrink-0">#{i + 1}</div>
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-xs sm:text-sm font-bold text-white shrink-0"
                     style={{ background: `hsl(${i * 50 + 250},70%,55%)` }}>
                     {user.avatar}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{user.name}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <p className="text-xs sm:text-sm font-semibold text-foreground truncate">{user.name}</p>
+                    <p className="text-[10px] text-muted-foreground hidden sm:block truncate">{user.email}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-foreground">{user.totalTransactions}</p>
-                    <p className="text-xs text-muted-foreground">transactions</p>
+                  <div className="text-right shrink-0">
+                    <p className="text-xs sm:text-sm font-bold text-foreground">{user.totalTransactions}</p>
+                    <p className="text-[9px] sm:text-xs text-muted-foreground hidden sm:block">txns</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold text-violet-400">{formatCurrency(user.totalSpent)}</p>
-                    <p className="text-xs text-muted-foreground">spent</p>
-                  </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                  <span className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full font-semibold shrink-0"
                     style={{
                       background: user.personality === "Saver" ? "rgba(16,185,129,0.15)" : user.personality === "Balanced" ? "rgba(139,92,246,0.15)" : "rgba(245,158,11,0.15)",
                       color: user.personality === "Saver" ? "#10b981" : user.personality === "Balanced" ? "#8b5cf6" : "#f59e0b"
                     }}>
-                    {user.personality}
+                    {user.personality.slice(0, 1)}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+          <div className="rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Personality Split</h3>
-            <div className="h-48">
+            <div className="h-40 sm:h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={personalityData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={4} dataKey="value">
+                  <Pie data={personalityData} cx="50%" cy="50%" innerRadius={30} outerRadius={60} paddingAngle={3} dataKey="value">
                     {personalityData.map((_, i) => (
                       <Cell key={i} fill={["#10b981", "#8b5cf6", "#f59e0b"][i]} stroke="transparent" />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 10 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="space-y-2 mt-2">
+            <div className="space-y-1.5 sm:space-y-2 mt-2">
               {personalityData.map((d, i) => (
                 <div key={d.name} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">

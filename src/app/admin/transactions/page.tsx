@@ -56,26 +56,26 @@ export default function AdminTransactionsPage() {
 
   return (
     <AdminLayout>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 sm:space-y-5">
+        <div className="flex items-start justify-between flex-col sm:flex-row gap-3">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Transaction Management</h1>
-            <p className="text-sm text-muted-foreground">{filtered.length} of {transactions.length} transactions</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{filtered.length} of {transactions.length} transactions</p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap w-full sm:w-auto">
             {selectedIds.length > 0 && (
-              <Button variant="danger" size="sm" onClick={handleBulkDelete}>
+              <Button variant="danger" size="sm" onClick={handleBulkDelete} className="text-xs">
                 <Trash2 size={12} /> Delete ({selectedIds.length})
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={exportCSV}><Download size={12} /> CSV</Button>
-            <Button variant="outline" size="sm" onClick={exportJSON}><Download size={12} /> JSON</Button>
+            <Button variant="outline" size="sm" onClick={exportCSV} className="text-xs"><Download size={12} /> CSV</Button>
+            <Button variant="outline" size="sm" onClick={exportJSON} className="text-xs"><Download size={12} /> JSON</Button>
           </div>
         </div>
 
         {/* Search */}
-        <div className="flex gap-3 flex-wrap">
-          <div className="flex-1 min-w-48">
+        <div className="flex gap-2 sm:gap-3 flex-wrap">
+          <div className="flex-1 min-w-full sm:min-w-48">
             <Input placeholder="Search transactions..." value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               icon={<Search size={14} />}
@@ -87,14 +87,14 @@ export default function AdminTransactionsPage() {
         {/* Bulk actions */}
         {selectedIds.length > 0 && (
           <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3 p-3 rounded-xl border" style={{ background: "rgba(139,92,246,0.08)", borderColor: "rgba(139,92,246,0.2)" }}>
-            <span className="text-sm font-medium text-violet-400">{selectedIds.length} selected</span>
-            <Button variant="ghost" size="sm" onClick={() => setSelectedIds([])}>Clear</Button>
+            className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border text-xs sm:text-sm" style={{ background: "rgba(139,92,246,0.08)", borderColor: "rgba(139,92,246,0.2)" }}>
+            <span className="font-medium text-violet-400">{selectedIds.length} selected</span>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedIds([])} className="text-xs">Clear</Button>
           </motion.div>
         )}
 
-        {/* Table */}
-        <div className="rounded-2xl border border-border overflow-hidden" style={{ background: "var(--card)" }}>
+        {/* Table - Desktop */}
+        <div className="rounded-2xl border border-border overflow-hidden hidden md:block" style={{ background: "var(--card)" }}>
           <div className="p-4 border-b border-border flex items-center gap-3">
             <button onClick={() => allSelected ? setSelectedIds([]) : setSelectedIds(allPageIds)}
               className="text-muted-foreground hover:text-foreground transition-colors">
@@ -158,14 +158,70 @@ export default function AdminTransactionsPage() {
           )}
         </div>
 
+        {/* Mobile Card View */}
+        <div className="space-y-2 md:hidden">
+          <AnimatePresence initial={false}>
+            {paginated.map((tx, i) => {
+              const isSelected = selectedIds.includes(tx.id);
+              return (
+                <motion.div
+                  key={tx.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ delay: i * 0.01 }}
+                  className={cn("flex items-start gap-2 p-3 rounded-xl border transition-all", isSelected && "bg-violet-500/5 border-violet-500/30")}
+                  style={{ background: "var(--card)" }}
+                >
+                  <button onClick={() => toggle(tx.id)} className="text-muted-foreground hover:text-violet-400 transition-colors mt-0.5 shrink-0">
+                    {isSelected ? <CheckSquare size={16} className="text-violet-400" /> : <Square size={16} />}
+                  </button>
+
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0"
+                    style={{ background: `${CATEGORY_COLORS[tx.category]}20` }}>
+                    {CATEGORY_ICONS[tx.category]}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs sm:text-sm font-semibold text-foreground truncate">{tx.notes || tx.category}</p>
+                      {tx.isAnomalous && <AlertTriangle size={10} className="text-amber-400 shrink-0" />}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">{tx.category} · {formatDate(tx.date)}</p>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <p className={cn("text-xs sm:text-sm font-bold", tx.type === "income" ? "text-emerald-500" : "text-rose-400")}>
+                      {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount)}
+                    </p>
+                    <Badge variant={tx.type === "income" ? "income" : "expense"} className="text-[9px] mt-0.5 inline-block">{tx.type}</Badge>
+                  </div>
+
+                  <button
+                    onClick={() => { if (confirm("Delete?")) { deleteTransaction(tx.id); toast.success("Deleted"); } }}
+                    className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-rose-500/15 text-muted-foreground hover:text-rose-400 transition-all shrink-0"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+          {filtered.length === 0 && (
+            <div className="py-8 text-center">
+              <p className="text-muted-foreground text-xs">No transactions found</p>
+            </div>
+          )}
+        </div>
+
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3">
-            <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
+          <div className="flex items-center justify-center gap-2 sm:gap-3">
+            <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="text-xs">
               <ChevronLeft size={14} /> Prev
             </Button>
-            <span className="text-sm text-muted-foreground">Page {page} of {totalPages}</span>
-            <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+            <span className="text-xs sm:text-sm text-muted-foreground">Page {page} of {totalPages}</span>
+            <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="text-xs">
               Next <ChevronRight size={14} />
             </Button>
           </div>

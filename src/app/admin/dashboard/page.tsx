@@ -97,7 +97,7 @@ export default function AdminDashboard() {
         </motion.div>
 
         {/* KPI Cards */}
-        <motion.div variants={fadeUp} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {kpis.map((kpi) => (
             <div
               key={kpi.label}
@@ -107,12 +107,12 @@ export default function AdminDashboard() {
               <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl opacity-15 bg-gradient-to-br ${kpi.grad}`} />
               <div className="flex items-start justify-between mb-3">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{kpi.label}</span>
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br ${kpi.grad} shadow-lg`}>
-                  <kpi.icon size={16} className="text-white" />
+                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center bg-gradient-to-br ${kpi.grad} shadow-lg`}>
+                  <kpi.icon size={14} className="text-white sm:scale-100 scale-75" />
                 </div>
               </div>
               <div className="flex items-end gap-2">
-                <span className="text-2xl font-bold text-foreground">{kpi.value}</span>
+                <span className="text-xl sm:text-2xl font-bold text-foreground">{kpi.value}</span>
                 {kpi.pulse && (
                   <span className="mb-0.5 flex items-center gap-1">
                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
@@ -132,20 +132,20 @@ export default function AdminDashboard() {
         </motion.div>
 
         {/* Charts row */}
-        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* User growth */}
-          <div className="lg:col-span-2 rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+          <div className="lg:col-span-2 rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">User Growth</h3>
-                <p className="text-2xl font-bold text-foreground mt-0.5">{userGrowth[userGrowth.length - 1]?.users}</p>
+                <p className="text-xl sm:text-2xl font-bold text-foreground mt-0.5">{userGrowth[userGrowth.length - 1]?.users}</p>
               </div>
-              <div className="flex gap-3 text-xs text-muted-foreground">
+              <div className="flex gap-3 text-xs text-muted-foreground hidden sm:flex">
                 <span className="flex items-center gap-1"><span className="w-2 h-2 bg-violet-500 rounded-sm" />Total</span>
                 <span className="flex items-center gap-1"><span className="w-2 h-2 bg-amber-500 rounded-sm" />Active</span>
               </div>
             </div>
-            <div className="h-48">
+            <div className="h-40 sm:h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={userGrowth}>
                   <defs>
@@ -170,11 +170,11 @@ export default function AdminDashboard() {
           </div>
 
           {/* Platform Health */}
-          <div className="rounded-2xl border border-border p-5 flex flex-col" style={{ background: "var(--card)" }}>
+          <div className="rounded-2xl border border-border p-4 sm:p-5 flex flex-col" style={{ background: "var(--card)" }}>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Platform Health</h3>
             <div className="flex-1 flex flex-col items-center justify-center gap-4">
               {/* Circular score */}
-              <div className="relative w-32 h-32">
+              <div className="relative w-24 sm:w-32 h-24 sm:h-32">
                 <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
                   <circle cx="60" cy="60" r="50" fill="none" stroke="var(--muted)" strokeWidth="10" />
                   <motion.circle
@@ -189,8 +189,8 @@ export default function AdminDashboard() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-foreground">{platformScore}</span>
-                  <span className="text-[10px] text-muted-foreground">/ 100</span>
+                  <span className="text-2xl sm:text-3xl font-bold text-foreground">{platformScore}</span>
+                  <span className="text-[9px] sm:text-[10px] text-muted-foreground">/ 100</span>
                 </div>
               </div>
               <div className="space-y-2 w-full">
@@ -211,10 +211,10 @@ export default function AdminDashboard() {
         </motion.div>
 
         {/* Transaction trends + Personality dist */}
-        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+        <motion.div variants={fadeUp} className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="lg:col-span-2 rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">Transaction Volume Trends</h3>
-            <div className="h-48">
+            <div className="h-40 sm:h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={txTrends} barGap={2}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -228,7 +228,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* User Personality Distribution */}
-          <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
+          <div className="rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">User Personalities</h3>
             {(["Saver", "Balanced", "Spender"] as const).map((p) => {
               const count = users.filter((u) => u.personality === p).length;
@@ -282,15 +282,15 @@ export default function AdminDashboard() {
 
         {/* Recent anomalies */}
         <motion.div variants={fadeUp}>
-          <div className="rounded-2xl border border-border p-5" style={{ background: "var(--card)" }}>
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-2xl border border-border p-4 sm:p-5" style={{ background: "var(--card)" }}>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Recent Anomalies</h3>
               <div className="flex items-center gap-1.5 text-xs font-semibold px-2 py-1 rounded-full"
                 style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b" }}>
                 <AlertTriangle size={11} /> {transactions.filter((t) => t.isAnomalous).length} flagged
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
               {transactions.filter((t) => t.isAnomalous).slice(0, 6).map((tx) => (
                 <div key={tx.id} className="flex items-center gap-3 p-3 rounded-xl border"
                   style={{ background: "rgba(245,158,11,0.04)", borderColor: "rgba(245,158,11,0.2)" }}>

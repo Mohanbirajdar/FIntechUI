@@ -74,22 +74,22 @@ export default function UsersPage() {
 
   return (
     <AdminLayout>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 sm:space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between flex-col sm:flex-row gap-3">
           <div>
             <h1 className="text-2xl font-bold text-foreground">User Management</h1>
             <p className="text-sm text-muted-foreground">{users.length} registered users</p>
           </div>
-          <div className="flex gap-3 text-center">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3 text-center w-full sm:w-auto">
             {[
-              { label: "Total Users", value: users.length, color: "text-violet-400" },
+              { label: "Total", value: users.length, color: "text-violet-400" },
               { label: "Active", value: users.filter((u) => u.status === "active").length, color: "text-emerald-500" },
               { label: "Suspended", value: users.filter((u) => u.status === "suspended").length, color: "text-rose-400" },
               { label: "Avg Spend", value: formatCurrency(avgSpend), color: "text-amber-400" },
             ].map((s) => (
-              <div key={s.label} className="px-4 py-2 rounded-xl border border-border" style={{ background: "var(--card)" }}>
-                <div className={`text-lg font-bold ${s.color}`}>{s.value}</div>
+              <div key={s.label} className="px-2 sm:px-4 py-2 rounded-xl border border-border text-xs sm:text-base" style={{ background: "var(--card)" }}>
+                <div className={`text-base sm:text-lg font-bold ${s.color}`}>{s.value}</div>
                 <div className="text-xs text-muted-foreground">{s.label}</div>
               </div>
             ))}
@@ -97,8 +97,8 @@ export default function UsersPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3">
-          <div className="flex-1 min-w-48">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3">
+          <div className="flex-1 min-w-full sm:min-w-48">
             <Input
               placeholder="Search users..."
               value={search}
@@ -116,7 +116,7 @@ export default function UsersPage() {
               <select
                 value={f.val}
                 onChange={(e) => f.set(e.target.value)}
-                className="h-11 rounded-xl border border-border bg-card px-3 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 appearance-none cursor-pointer"
+                className="h-11 rounded-xl border border-border bg-card px-3 pr-8 text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 appearance-none cursor-pointer"
               >
                 {f.opts.map((o) => <option key={o} value={o}>{o === "all" ? `All ${f.label}` : o.charAt(0).toUpperCase() + o.slice(1)}</option>)}
               </select>
@@ -137,8 +137,8 @@ export default function UsersPage() {
           )}
         </div>
 
-        {/* Table */}
-        <div className="rounded-2xl border border-border overflow-hidden" style={{ background: "var(--card)" }}>
+        {/* Table - Desktop */}
+        <div className="rounded-2xl border border-border overflow-x-auto hidden md:block" style={{ background: "var(--card)" }}>
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
@@ -245,6 +245,100 @@ export default function UsersPage() {
           )}
         </div>
 
+        {/* Mobile Card View */}
+        <div className="space-y-3 md:hidden">
+          <AnimatePresence initial={false}>
+            {filtered.map((user, i) => (
+              <motion.div
+                key={user.id}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ delay: i * 0.02 }}
+                className={cn(
+                  "rounded-xl border border-border p-3 cursor-pointer transition-all",
+                  selectedIds.includes(user.id) && "bg-violet-500/5 border-violet-500/30"
+                )}
+                style={{ background: "var(--card)" }}
+                onClick={() => setSelectedUser(user)}
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  <input type="checkbox"
+                    checked={selectedIds.includes(user.id)}
+                    onChange={() => toggleSelect(user.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="rounded mt-0.5"
+                  />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white shrink-0"
+                    style={{ background: "linear-gradient(135deg,#7c3aed,#4f46e5)" }}>
+                    {user.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{user.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(user.id); }}
+                    className="text-muted-foreground hover:text-rose-400 transition-colors p-1">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  <div className="text-xs">
+                    <span className="text-muted-foreground block">Status</span>
+                    <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full border inline-block mt-0.5", STATUS_COLORS[user.status])}>
+                      {user.status}
+                    </span>
+                  </div>
+                  <div className="text-xs">
+                    <span className="text-muted-foreground block">Type</span>
+                    <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full inline-block mt-0.5", PERSONALITY_COLORS[user.personality])}>
+                      {user.personality === "Saver" ? "🏆" : user.personality === "Spender" ? "💸" : "⚖️"}
+                    </span>
+                  </div>
+                  <div className="text-xs">
+                    <span className="text-muted-foreground block">Txns</span>
+                    <span className="font-semibold text-foreground block mt-0.5">{user.totalTransactions}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-muted-foreground">Spent</span>
+                    <p className="font-semibold text-foreground">{formatCurrency(user.totalSpent)}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Savings</span>
+                    <p className="font-semibold text-emerald-500">{user.savingsRate}%</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-1.5 mt-3 pt-3 border-t border-border/50">
+                  {user.status !== "active" ? (
+                    <button onClick={(e) => { e.stopPropagation(); handleStatusChange(user.id, "active"); }}
+                      className="flex-1 text-xs py-1.5 rounded-lg bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25 font-medium transition-colors"
+                      title="Activate">
+                      <UserCheck size={12} className="inline mr-1" /> Activate
+                    </button>
+                  ) : (
+                    <button onClick={(e) => { e.stopPropagation(); handleStatusChange(user.id, "suspended"); }}
+                      className="flex-1 text-xs py-1.5 rounded-lg bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 font-medium transition-colors"
+                      title="Suspend">
+                      <UserX size={12} className="inline mr-1" /> Suspend
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {filtered.length === 0 && (
+            <div className="py-12 text-center">
+              <Users size={32} className="mx-auto text-muted-foreground/30 mb-2" />
+              <p className="text-muted-foreground text-xs">No users found</p>
+            </div>
+          )}
+        </div>
+
         {/* User detail panel */}
         <AnimatePresence>
           {selectedUser && (
@@ -252,7 +346,7 @@ export default function UsersPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="fixed bottom-6 right-6 w-72 rounded-2xl border border-border shadow-2xl z-50 overflow-hidden"
+              className="fixed bottom-6 right-6 w-72 rounded-2xl border border-border shadow-2xl z-50 overflow-hidden hidden md:block"
               style={{ background: "var(--card)" }}
             >
               <div className="p-4 border-b border-border flex items-center justify-between"
